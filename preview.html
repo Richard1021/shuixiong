@@ -609,7 +609,7 @@
         </div>
 
         <div class="mascot-area">
-          <div class="shuixiong">
+          <div class="shuixiong mascot">
             <div class="body-shape"></div>
             <div class="eyes">
               <div class="eye"></div>
@@ -680,35 +680,389 @@
     </div>
   </div>
 
+  <!-- API 配置 -->
   <script>
-    // 添加简单的交互效果
-    document.querySelectorAll('.course-card').forEach(card => {
-      card.addEventListener('click', () => {
-        alert('跳转到播放页');
-      });
-    });
+    // ========== API 配置 (可修改为真实后端地址) ==========
+    const API_CONFIG = {
+      // 云函数 HTTP 触发器地址 (需在云开发控制台开启 HTTP 访问)
+      // 或使用本地 Mock 数据
+      useMock: true,  // 设置为 false 使用真实 API
 
-    document.querySelectorAll('.play-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.querySelector('.play-icon-sm').textContent =
-          btn.querySelector('.play-icon-sm').textContent === '▶' ? '⏸' : '▶';
-      });
-    });
+      // 真实 API 地址 (部署后替换)
+      baseUrl: 'https://your-env-id.tcb-api.tencentcloudapi.com',
 
-    document.querySelectorAll('.record-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('recording');
-        btn.querySelector('.record-icon').textContent =
-          btn.classList.contains('recording') ? '⏹' : '🎤';
-      });
-    });
+      // 云函数名称
+      functions: {
+        getCourseList: 'getCourseList',
+        getCourseDetail: 'getCourseDetail',
+        submitRecording: 'submitRecording',
+        recognizeVoice: 'recognizeVoice'
+      }
+    };
 
+    // ========== Mock 数据 (模拟云函数返回) ==========
+    const MOCK_DATA = {
+      courses: [
+        {
+          _id: 'course_001',
+          title: 'Hello Song',
+          type: 'song',
+          stage: 'S1',
+          coverImage: '',
+          segments: [
+            { id: 'seg_001', text: 'Hello, hello!', audioUrl: '', order: 1 },
+            { id: 'seg_002', text: 'How are you?', audioUrl: '', order: 2 },
+            { id: 'seg_003', text: "I'm fine, thank you!", audioUrl: '', order: 3 }
+          ]
+        },
+        {
+          _id: 'course_002',
+          title: 'Apple',
+          type: 'word',
+          stage: 'S1',
+          coverImage: '',
+          segments: [
+            { id: 'seg_004', text: 'Apple', audioUrl: '', order: 1 },
+            { id: 'seg_005', text: 'Banana', audioUrl: '', order: 2 }
+          ]
+        },
+        {
+          _id: 'course_003',
+          title: 'How are you?',
+          type: 'sentence',
+          stage: 'S1',
+          coverImage: '',
+          segments: [
+            { id: 'seg_006', text: 'How are you?', audioUrl: '', order: 1 },
+            { id: 'seg_007', text: 'I am fine.', audioUrl: '', order: 2 },
+            { id: 'seg_008', text: 'Thank you.', audioUrl: '', order: 3 },
+            { id: 'seg_009', text: 'And you?', audioUrl: '', order: 4 }
+          ]
+        }
+      ]
+    };
+
+    // ========== API 调用封装 ==========
+
+    /**
+     * 调用云函数 (封装微信云开发和 HTTP 请求)
+     */
+    async function callCloudFunction(name, data = {}) {
+      if (API_CONFIG.useMock) {
+        return mockCloudFunction(name, data);
+      }
+
+      // 真实 API 调用
+      try {
+        const response = await fetch(`${API_CONFIG.baseUrl}/${API_CONFIG.functions[name]}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        return await response.json();
+      } catch (error) {
+        console.error('API 调用失败:', error);
+        return { success: false, message: error.message };
+      }
+    }
+
+    /**
+     * Mock 云函数返回 (用于演示)
+     */
+    function mockCloudFunction(name, data) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          switch (name) {
+            case 'getCourseList':
+              resolve({
+                success: true,
+                data: MOCK_DATA.courses.filter(c => {
+                  if (data.type && data.type !== 'all' && c.type !== data.type) return false;
+                  return true;
+                }),
+                message: '获取课程列表成功'
+              });
+              break;
+
+            case 'getCourseDetail':
+              const course = MOCK_DATA.courses.find(c => c._id === data.courseId);
+              if (course) {
+                resolve({ success: true, data: course, message: '获取课程详情成功' });
+              } else {
+                resolve({ success: false, data: null, message: '课程不存在' });
+              }
+              break;
+
+            case 'submitRecording':
+              // 模拟评分逻辑
+              const scores = {
+                pronunciation: Math.floor(Math.random() * 20) + 75,
+                fluency: Math.floor(Math.random() * 20) + 75,
+                completeness: Math.floor(Math.random() * 20) + 75
+              };
+              const total = Math.floor(
+                scores.pronunciation * 0.4 +
+                scores.fluency * 0.3 +
+                scores.completeness * 0.3
+              );
+
+              let feedback;
+              if (total >= 85) {
+                feedback = { text: 'Wow! You did it!', audioText: 'Wow! You did it!', emotion: 'happy' };
+              } else if (total >= 70) {
+                feedback = { text: 'Great job!', audioText: 'Great job!', emotion: 'encourage' };
+              } else {
+                feedback = { text: 'One more time!', audioText: 'One more time!', emotion: 'cheer' };
+              }
+
+              resolve({
+                success: true,
+                data: {
+                  recordId: 'record_' + Date.now(),
+                  score: { total, ...scores },
+                  feedback
+                },
+                message: '提交成功'
+              });
+              break;
+
+            case 'recognizeVoice':
+              const commands = {
+                '下一首': { action: 'next', type: 'control' },
+                '上一首': { action: 'prev', type: 'control' },
+                '再听一遍': { action: 'replay', type: 'control' },
+                '暂停': { action: 'pause', type: 'control' },
+                '继续': { action: 'resume', type: 'control' }
+              };
+              const cmd = commands[data.voiceText];
+              if (cmd) {
+                resolve({
+                  success: true,
+                  data: { recognized: true, command: cmd, originalText: data.voiceText },
+                  message: '语音指令识别成功'
+                });
+              } else {
+                resolve({
+                  success: true,
+                  data: { recognized: false, originalText: data.voiceText },
+                  message: '未匹配到已知指令'
+                });
+              }
+              break;
+
+            default:
+              resolve({ success: false, message: '未知函数' });
+          }
+        }, 300); // 模拟网络延迟
+      });
+    }
+
+    // ========== 页面状态管理 ==========
+
+    const AppState = {
+      currentCourse: null,
+      currentIndex: 0,
+      isPlaying: false,
+      isRecording: false,
+      segments: []
+    };
+
+    // ========== 首页交互 (对接真实 API) ==========
+
+    // 加载课程列表
+    async function loadCourses(type = 'all') {
+      const courseListEl = document.querySelector('.course-list');
+      courseListEl.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">加载中...</div>';
+
+      const result = await callCloudFunction('getCourseList', { stage: 'S1', type });
+
+      if (result.success && result.data.length > 0) {
+        courseListEl.innerHTML = result.data.map(course => `
+          <div class="course-card" data-id="${course._id}">
+            <div class="course-cover" data-type="${course.type}">
+              ${course.type === 'song' ? '🎵' : course.type === 'word' ? '🍎' : '💬'}
+            </div>
+            <div class="course-info">
+              <span class="course-title">${course.title}</span>
+              <div class="course-meta">${course.segments ? course.segments.length : 0} 个片段</div>
+            </div>
+            <div class="play-icon">▶</div>
+          </div>
+        `).join('');
+
+        // 绑定点击事件
+        document.querySelectorAll('.course-card').forEach(card => {
+          card.addEventListener('click', async () => {
+            const courseId = card.dataset.id;
+            await loadCourseDetail(courseId);
+          });
+        });
+      } else {
+        courseListEl.innerHTML = '<div style="text-align:center;padding:20px;color:#999;">暂无课程</div>';
+      }
+    }
+
+    // Tab 切换
     document.querySelectorAll('.tab-item').forEach(tab => {
       tab.addEventListener('click', () => {
         tab.parentElement.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
+        const type = tab.textContent === '全部' ? 'all' : tab.textContent;
+        loadCourses(type);
       });
     });
+
+    // ========== 播放页交互 (对接真实 API) ==========
+
+    // 加载课程详情
+    async function loadCourseDetail(courseId) {
+      const result = await callCloudFunction('getCourseDetail', { courseId });
+
+      if (result.success) {
+        AppState.currentCourse = result.data;
+        AppState.segments = result.data.segments || [];
+        AppState.currentIndex = 0;
+
+        // 更新播放页 UI
+        document.querySelector('.course-title-sm').textContent = result.data.title;
+        updateSegmentUI();
+
+        // 滚动到播放页
+        document.querySelector('.phone-frame:nth-child(3) .screen').scrollIntoView({ behavior: 'smooth' });
+      } else {
+        alert('加载课程失败：' + result.message);
+      }
+    }
+
+    // 更新当前句子 UI
+    function updateSegmentUI() {
+      const segment = AppState.segments[AppState.currentIndex];
+      if (segment) {
+        document.querySelector('.sentence-text').textContent = segment.text;
+        document.querySelector('.progress-text').textContent = `${AppState.currentIndex + 1} / ${AppState.segments.length}`;
+        document.querySelector('.sentence-hint').textContent = '点击麦克风跟读';
+
+        // 隐藏评分面板
+        document.querySelector('.score-panel').style.display = 'none';
+      }
+    }
+
+    // 播放按钮
+    document.querySelector('.play-btn').addEventListener('click', () => {
+      const icon = document.querySelector('.play-icon-sm');
+      if (AppState.isPlaying) {
+        icon.textContent = '▶';
+        AppState.isPlaying = false;
+        // 实际项目中：audioManager.pause()
+      } else {
+        icon.textContent = '⏸';
+        AppState.isPlaying = true;
+        // 实际项目中：audioManager.play(currentSegment.audioUrl)
+        document.querySelector('.mascot .speech-bubble').textContent = 'Listening...';
+      }
+    });
+
+    // 录音按钮
+    document.querySelector('.record-btn').addEventListener('click', async () => {
+      const btn = document.querySelector('.record-btn');
+
+      if (AppState.isRecording) {
+        // 停止录音
+        btn.classList.remove('recording');
+        document.querySelector('.record-icon').textContent = '🎤';
+        AppState.isRecording = false;
+
+        // 提交评分
+        document.querySelector('.sentence-hint').textContent = '评分中...';
+        const result = await callCloudFunction('submitRecording', {
+          courseId: AppState.currentCourse._id,
+          segmentId: AppState.segments[AppState.currentIndex].id
+        });
+
+        if (result.success) {
+          showScorePanel(result.data);
+        }
+      } else {
+        // 开始录音
+        btn.classList.add('recording');
+        document.querySelector('.record-icon').textContent = '⏹';
+        AppState.isRecording = true;
+        document.querySelector('.sentence-hint').textContent = '正在听你说...';
+        document.querySelector('.mascot .speech-bubble').textContent = '';
+
+        // 实际项目中：recorderManager.start()
+      }
+    });
+
+    // 显示评分面板
+    function showScorePanel(data) {
+      const panel = document.querySelector('.score-panel');
+      panel.style.display = 'block';
+      panel.querySelector('.score-title').textContent = data.score.total >= 85 ? '太棒了!' : '继续加油!';
+      panel.querySelector('.score-total').textContent = data.score.total;
+      panel.querySelector('.score-item:nth-child(1) .value').textContent = data.score.pronunciation;
+      panel.querySelector('.score-item:nth-child(2) .value').textContent = data.score.fluency;
+      panel.querySelector('.score-item:nth-child(3) .value').textContent = data.score.completeness;
+      panel.querySelector('.feedback-text').textContent = data.feedback.audioText;
+
+      // 更新水熊虫表情
+      document.querySelector('.mascot .speech-bubble').textContent = data.feedback.audioText;
+    }
+
+    // 控制按钮
+    document.querySelectorAll('.ctrl-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.textContent;
+        if (text === '上一句' && AppState.currentIndex > 0) {
+          AppState.currentIndex--;
+          updateSegmentUI();
+        } else if (text === '下一句' && AppState.currentIndex < AppState.segments.length - 1) {
+          AppState.currentIndex++;
+          updateSegmentUI();
+        } else if (text === '重听') {
+          updateSegmentUI();
+        }
+      });
+    });
+
+    // ========== 语音指令测试 ==========
+
+    async function testVoiceCommand(voiceText) {
+      const result = await callCloudFunction('recognizeVoice', { voiceText });
+      if (result.success && result.data.recognized) {
+        console.log('识别到指令:', result.data.command);
+        // 执行对应操作
+        if (result.data.command.action === 'next') {
+          document.querySelector('.ctrl-btn:last-child').click();
+        } else if (result.data.command.action === 'prev') {
+          document.querySelector('.ctrl-btn:first-child').click();
+        } else if (result.data.command.action === 'replay') {
+          document.querySelector('.ctrl-btn:nth-child(2)').click();
+        }
+      }
+      return result;
+    }
+
+    // ========== 初始化 ==========
+
+    // 页面加载时获取课程列表
+    loadCourses('all');
+
+    // ========== 控制台指令 ==========
+    console.log(`
+水熊宝 API 调试模式
+==================
+可用命令:
+- loadCourses('all' | 'word' | 'sentence' | 'song')  // 加载课程
+- loadCourseDetail('course_001')                     // 加载课程详情
+- testVoiceCommand('下一首')                          // 测试语音指令
+- callCloudFunction('getCourseList', {type: 'word'}) // 直接调用云函数
+
+当前模式：${API_CONFIG.useMock ? 'Mock 模式' : '真实 API 模式'}
+切换到真实 API: API_CONFIG.useMock = false;
+    `);
   </script>
 </body>
 </html>
