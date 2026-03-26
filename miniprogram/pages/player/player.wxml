@@ -1,0 +1,78 @@
+<view class="container">
+  <!-- 顶部导航 -->
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <text class="course-title">{{courseInfo.title || '课程播放中'}}</text>
+    <view class="empty-placeholder"></view>
+  </view>
+
+  <!-- 水熊虫 IP 展示区 -->
+  <view class="mascot-area">
+    <shuixiong
+      emotion="{{mascotEmotion}}"
+      speech="{{mascotSpeech}}"
+    ></shuixiong>
+  </view>
+
+  <!-- 当前句子显示 -->
+  <view class="sentence-card">
+    <view class="sentence-text">{{currentSegment.text || '准备开始学习'}}</view>
+    <view class="sentence-hint" wx:if="{{hintText}}">{{hintText}}</view>
+  </view>
+
+  <!-- 进度指示 -->
+  <view class="progress-indicator">
+    <text class="progress-text">{{currentIndex + 1}} / {{segments.length}}</text>
+  </view>
+
+  <!-- 播放控制区 -->
+  <view class="control-area">
+    <!-- 播放/暂停按钮 -->
+    <view class="play-btn" bindtap="togglePlay" wx:if="{{!isRecording}}">
+      <text class="play-icon">{{isPlaying ? '⏸' : '▶'}}</text>
+    </view>
+
+    <!-- 录音按钮 -->
+    <view class="record-btn {{isRecording ? 'recording' : ''}}"
+          bindtap="toggleRecord"
+          wx:if="{{currentSegment.text}}">
+      <text class="record-icon">{{isRecording ? '⏹' : '🎤'}}</text>
+    </view>
+  </view>
+
+  <!-- 控制按钮组 -->
+  <view class="button-group">
+    <view class="ctrl-btn" bindtap="prevSegment">
+      <text>上一句</text>
+    </view>
+    <view class="ctrl-btn" bindtap="replaySegment">
+      <text>重听</text>
+    </view>
+    <view class="ctrl-btn" bindtap="nextSegment">
+      <text>下一句</text>
+    </view>
+  </view>
+
+  <!-- 评分结果 -->
+  <view class="score-panel" wx:if="{{showScore}}">
+    <view class="score-title">太棒了!</view>
+    <view class="score-total">{{scoreData.total}}</view>
+    <view class="score-details">
+      <view class="score-item">
+        <text class="label">发音</text>
+        <text class="value">{{scoreData.pronunciation}}</text>
+      </view>
+      <view class="score-item">
+        <text class="label">流利</text>
+        <text class="value">{{scoreData.fluency}}</text>
+      </view>
+      <view class="score-item">
+        <text class="label">完整</text>
+        <text class="value">{{scoreData.completeness}}</text>
+      </view>
+    </view>
+    <view class="feedback-text">{{scoreData.feedback}}</view>
+  </view>
+</view>

@@ -1,0 +1,213 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF6E5 0%, #FFE5F0 100%);
+  padding: 20rpx;
+}
+
+/* 顶部导航 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 10rpx;
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: #FF9966;
+}
+
+.course-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.empty-placeholder {
+  width: 60rpx;
+}
+
+/* 水熊虫 IP 展示区 */
+.mascot-area {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+/* 句子卡片 */
+.sentence-card {
+  background: white;
+  border-radius: 24rpx;
+  padding: 40rpx 30rpx;
+  margin: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.sentence-text {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.6;
+}
+
+.sentence-hint {
+  font-size: 28rpx;
+  color: #999;
+  margin-top: 20rpx;
+}
+
+/* 进度指示 */
+.progress-indicator {
+  text-align: center;
+  padding: 20rpx;
+}
+
+.progress-text {
+  font-size: 28rpx;
+  color: #FF9966;
+  font-weight: bold;
+}
+
+/* 播放控制区 */
+.control-area {
+  display: flex;
+  justify-content: center;
+  gap: 60rpx;
+  padding: 40rpx 0;
+}
+
+.play-btn,
+.record-btn {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+}
+
+.play-btn {
+  background: linear-gradient(135deg, #FF9966, #FF6699);
+}
+
+.play-icon {
+  font-size: 60rpx;
+  color: white;
+}
+
+.record-btn {
+  background: white;
+  border: 4rpx solid #FF6699;
+}
+
+.record-btn.recording {
+  background: #FF6699;
+  animation: pulse 1s infinite;
+}
+
+.record-icon {
+  font-size: 60rpx;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 控制按钮组 */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 20rpx;
+  padding: 20rpx;
+}
+
+.ctrl-btn {
+  background: white;
+  padding: 16rpx 32rpx;
+  border-radius: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.ctrl-btn text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 评分结果 */
+.score-panel {
+  background: white;
+  border-radius: 24rpx;
+  padding: 40rpx 30rpx;
+  margin: 20rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.score-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #FF9966;
+  margin-bottom: 20rpx;
+}
+
+.score-total {
+  font-size: 96rpx;
+  font-weight: bold;
+  color: #FF6699;
+  margin: 20rpx 0;
+}
+
+.score-details {
+  display: flex;
+  justify-content: space-around;
+  margin: 30rpx 0;
+}
+
+.score-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.score-item .label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.score-item .value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.feedback-text {
+  font-size: 32rpx;
+  color: #FF9966;
+  margin-top: 20rpx;
+  font-weight: bold;
+}
