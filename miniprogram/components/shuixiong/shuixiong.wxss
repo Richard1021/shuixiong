@@ -1,0 +1,201 @@
+.shuixiong-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.shuixiong-body {
+  position: relative;
+  width: 200rpx;
+  height: 160rpx;
+}
+
+/* 身体形状 - 水熊虫椭圆形 */
+.body-shape {
+  position: absolute;
+  width: 200rpx;
+  height: 160rpx;
+  background: linear-gradient(135deg, #FFB399, #FF9966);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow: 0 8rpx 24rpx rgba(255, 153, 102, 0.4);
+}
+
+/* 眼睛 */
+.eyes {
+  position: absolute;
+  top: 50rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20rpx;
+  z-index: 2;
+}
+
+.eye {
+  width: 36rpx;
+  height: 36rpx;
+  background: white;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.1s;
+}
+
+.eye::after {
+  content: '';
+  position: absolute;
+  width: 16rpx;
+  height: 16rpx;
+  background: #333;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.eye.blinking {
+  height: 4rpx;
+  border-radius: 2rpx;
+}
+
+.eye.blinking::after {
+  display: none;
+}
+
+/* 嘴巴 */
+.mouth {
+  position: absolute;
+  top: 90rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 20rpx;
+  z-index: 2;
+}
+
+.mouth.normal {
+  border-bottom: 3rpx solid #CC6633;
+  border-radius: 0 0 20rpx 20rpx;
+  background: transparent;
+}
+
+.mouth.happy {
+  width: 50rpx;
+  height: 30rpx;
+  background: #CC6633;
+  border-radius: 0 0 25rpx 25rpx;
+}
+
+.mouth.happy::after {
+  content: '';
+  position: absolute;
+  top: 8rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30rpx;
+  height: 10rpx;
+  background: #FF9966;
+  border-radius: 0 0 15rpx 15rpx;
+}
+
+.mouth.encourage {
+  width: 30rpx;
+  height: 30rpx;
+  background: #CC6633;
+  border-radius: 50%;
+}
+
+.mouth.cheer {
+  width: 60rpx;
+  height: 40rpx;
+  background: #CC6633;
+  border-radius: 0 0 30rpx 30rpx;
+}
+
+/* 腮红 */
+.blush {
+  position: absolute;
+  top: 75rpx;
+  width: 30rpx;
+  height: 20rpx;
+  background: rgba(255, 150, 150, 0.6);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.blush.left {
+  left: 30rpx;
+}
+
+.blush.right {
+  right: 30rpx;
+}
+
+/* 对话气泡 */
+.speech-bubble {
+  position: relative;
+  background: white;
+  border-radius: 24rpx;
+  padding: 20rpx 30rpx;
+  margin-top: 30rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  animation: float 2s ease-in-out infinite;
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -16rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 16rpx solid transparent;
+  border-right: 16rpx solid transparent;
+  border-top: 20rpx solid white;
+}
+
+.speech-bubble text {
+  font-size: 28rpx;
+  color: #333;
+  white-space: nowrap;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10rpx);
+  }
+}
+
+/* 表情变化 - 容器动画 */
+.shuixiong-container.happy .shuixiong-body {
+  animation: bounce 0.5s ease;
+}
+
+.shuixiong-container.cheer .shuixiong-body {
+  animation: celebrate 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes celebrate {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
