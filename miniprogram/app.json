@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/player/player",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundColor": "#FFF6E5",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#FF9966",
+    "navigationBarTitleText": "水熊宝 AI 英语",
+    "navigationBarTextStyle": "white"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}
