@@ -1,0 +1,80 @@
+<view class="container">
+  <!-- 顶部欢迎区域 -->
+  <view class="header">
+    <view class="avatar" wx:if="{{userInfo}}">
+      <image src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+    </view>
+    <view class="welcome-text">
+      <text class="title">Hi, {{userInfo.nickName || '宝贝'}}!</text>
+      <text class="subtitle">今天想学什么呢？</text>
+    </view>
+  </view>
+
+  <!-- 分类 Tab -->
+  <view class="tab-bar">
+    <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}"
+          data-type="all"
+          bindtap="switchTab">
+      全部
+    </view>
+    <view class="tab-item {{currentTab === 'word' ? 'active' : ''}}"
+          data-type="word"
+          bindtap="switchTab">
+      单词
+    </view>
+    <view class="tab-item {{currentTab === 'sentence' ? 'active' : ''}}"
+          data-type="sentence"
+          bindtap="switchTab">
+      句子
+    </view>
+    <view class="tab-item {{currentTab === 'song' ? 'active' : ''}}"
+          data-type="song"
+          bindtap="switchTab">
+      儿歌
+    </view>
+  </view>
+
+  <!-- 课程列表 -->
+  <view class="course-list">
+    <view class="course-card"
+          wx:for="{{courseList}}"
+          wx:key="_id"
+          bindtap="goToPlayer"
+          data-course="{{item}}">
+      <view class="course-cover">
+        <image src="{{item.coverImage || '/images/default-cover.png'}}"
+               mode="aspectFill"></image>
+        <view class="course-type-tag">{{item.type}}</view>
+      </view>
+      <view class="course-info">
+        <text class="course-title">{{item.title}}</text>
+        <view class="course-meta">
+          <text class="segment-count">{{item.segments ? item.segments.length : 0}} 个片段</text>
+        </view>
+      </view>
+      <view class="play-icon">▶</view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{courseList.length === 0 && !loading}}">
+      <text>暂无课程，敬请期待~</text>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-state" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+  </view>
+
+  <!-- 底部导航 -->
+  <view class="bottom-nav">
+    <view class="nav-item active">
+      <text class="nav-icon">🏠</text>
+      <text class="nav-text">首页</text>
+    </view>
+    <view class="nav-item" bindtap="goToProfile">
+      <text class="nav-icon">👤</text>
+      <text class="nav-text">我的</text>
+    </view>
+  </view>
+</view>
