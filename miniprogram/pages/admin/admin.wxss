@@ -1,0 +1,145 @@
+.container {
+  padding: 30rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  padding: 30rpx 0 20rpx;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+}
+
+.subtitle {
+  font-size: 26rpx;
+  color: #999;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.section {
+  background: white;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.btn-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.btn-primary {
+  flex: 1;
+  background: linear-gradient(135deg, #FF9966, #FF6699);
+  color: white;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.btn-success {
+  flex: 1;
+  background: #52c41a;
+  color: white;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.btn-danger {
+  background: #ff4d4f;
+  color: white;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  border: none;
+  padding: 0 30rpx;
+}
+
+.action-row {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.file-item {
+  border-bottom: 1rpx solid #f0f0f0;
+  padding: 16rpx 0;
+}
+
+.file-item:last-child {
+  border-bottom: none;
+}
+
+.file-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.file-name {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-status {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  margin-left: 16rpx;
+}
+
+.status-pending { background: #fff7e6; color: #fa8c16; }
+.status-done { background: #f6ffed; color: #52c41a; }
+.status-error { background: #fff2f0; color: #ff4d4f; }
+
+.file-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.meta-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.picker-val {
+  font-size: 24rpx;
+  color: #FF9966;
+  border-bottom: 1rpx solid #FF9966;
+  padding-bottom: 2rpx;
+}
+
+.log-box {
+  height: 300rpx;
+  background: #1a1a1a;
+  border-radius: 8rpx;
+  padding: 16rpx;
+}
+
+.log-line {
+  display: block;
+  font-size: 22rpx;
+  color: #00ff88;
+  line-height: 1.8;
+  font-family: monospace;
+}

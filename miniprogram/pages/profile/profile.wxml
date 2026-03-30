@@ -4,6 +4,7 @@
     <view class="avatar" wx:if="{{userInfo}}">
       <image src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
     </view>
+    <button wx:if="{{!userInfo}}" bindtap="onGetUserProfile" class="login-btn">登录获取头像</button>
     <view class="user-info">
       <text class="nickname">{{userInfo.nickName || '小宝贝'}}</text>
       <text class="userid">ID: {{userId || '等待登录'}}</text>

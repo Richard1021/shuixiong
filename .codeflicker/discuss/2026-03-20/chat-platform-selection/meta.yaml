@@ -1,0 +1,15 @@
+# 讨论元数据
+topic: "儿童聊天工具平台选择"
+created: 2026-03-20
+current_round: 3
+
+# 过期检测配置
+max_stale_rounds: 3
+
+# 决策追踪
+decisions:
+  - id: D1
+    title: "选择微信小程序作为儿童聊天工具平台"
+    status: confirmed
+    confirmed_at: 3
+    doc_path: decisions/D01-wechat-miniprogram.md

@@ -2,7 +2,8 @@
   "pages": [
     "pages/home/home",
     "pages/player/player",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/admin/admin"
   ],
   "window": {
     "backgroundColor": "#FFF6E5",

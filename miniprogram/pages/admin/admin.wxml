@@ -1,0 +1,54 @@
+<view class="container">
+  <view class="header">
+    <text class="title">配置管理平台</text>
+    <text class="subtitle">音频素材上传工具</text>
+  </view>
+
+  <view class="section">
+    <view class="btn-row">
+      <button class="btn-primary" bindtap="onSelectFiles">选择 MP3 文件</button>
+      <button class="btn-danger" bindtap="onClearList" wx:if="{{uploadList.length > 0}}">清空</button>
+    </view>
+  </view>
+
+  <view class="section" wx:if="{{uploadList.length > 0}}">
+    <text class="section-title">待上传文件（{{uploadList.length}} 个）</text>
+    <view class="file-item" wx:for="{{uploadList}}" wx:key="name">
+      <view class="file-header">
+        <text class="file-name">{{item.name}}</text>
+        <text class="file-status status-{{item.status}}">
+          {{item.status === 'pending' ? '待上传' : item.status === 'done' ? '完成' : '失败'}}
+        </text>
+      </view>
+      <view class="file-meta">
+        <text class="meta-label">阶段:</text>
+        <picker mode="selector" range="{{['S1']}}" bindchange="onStageChange" data-index="{{index}}">
+          <text class="picker-val">{{item.stage}}</text>
+        </picker>
+        <text class="meta-label">主题:</text>
+        <picker mode="selector" range="{{['animals','colors','daily_items','numbers']}}" value="{{item.theme}}" bindchange="onThemeChange" data-index="{{index}}">
+          <text class="picker-val">{{item.theme}}</text>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="section" wx:if="{{uploading}}">
+    <text class="section-title">上传进度: {{doneCount}}/{{totalCount}} ({{uploadProgress}}%)</text>
+    <progress percent="{{uploadProgress}}" show-info stroke-width="6" activeColor="#FF9966"/>
+  </view>
+
+  <view class="action-row" wx:if="{{uploadList.length > 0}}">
+    <button class="btn-primary" bindtap="onUploadAll" disabled="{{uploading}}">
+      {{uploading ? '上传中...' : '开始上传'}}
+    </button>
+    <button class="btn-success" bindtap="onSyncToDB" disabled="{{uploading}}">同步到数据库</button>
+  </view>
+
+  <view class="section" wx:if="{{logs.length > 0}}">
+    <text class="section-title">操作日志</text>
+    <scroll-view class="log-box" scroll-y>
+      <text class="log-line" wx:for="{{logs}}" wx:key="index">{{item}}</text>
+    </scroll-view>
+  </view>
+</view>

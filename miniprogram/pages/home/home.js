@@ -13,24 +13,13 @@ Page({
     this.loadCourses();
   },
 
-  // 加载用户信息
-  async loadUserInfo() {
+  loadUserInfo() {
     const userInfo = app.globalData.userInfo;
-
     if (userInfo) {
-      this.setData({ userInfo });
-    } else {
-      const { userInfo } = await wx.getUserProfile({
-        desc: '用于展示用户信息',
-        lang: 'zh_CN'
-      });
-
-      app.globalData.userInfo = userInfo;
       this.setData({ userInfo });
     }
   },
 
-  // 加载课程列表
   async loadCourses() {
     this.setData({ loading: true });
 
@@ -44,21 +33,13 @@ Page({
       });
 
       if (result.result.success) {
-        this.setData({
-          courseList: result.result.data
-        });
+        this.setData({ courseList: result.result.data });
       } else {
-        wx.showToast({
-          title: result.result.message,
-          icon: 'none'
-        });
+        wx.showToast({ title: result.result.message, icon: 'none' });
       }
     } catch (error) {
       console.error('加载课程失败:', error);
-      wx.showToast({
-        title: '加载失败，请重试',
-        icon: 'none'
-      });
+      wx.showToast({ title: '加载失败，请重试', icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }

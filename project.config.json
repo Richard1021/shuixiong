@@ -1,6 +1,7 @@
 {
   "miniprogramRoot": "miniprogram/",
   "cloudfunctionRoot": "cloud/",
+  "cloudbaseRoot": "cloud/",
   "setting": {
     "urlCheck": true,
     "es6": true,
@@ -46,7 +47,7 @@
   },
   "appid": "wx15476901e3056ab9",
   "projectname": "shuixiongbao-ai-english",
-  "libVersion": "2.23.0",
+  "libVersion": "3.15.1",
   "cloudfunctionTemplateRoot": "cloudfunctionTemplate/",
   "condition": {},
   "srcMiniprogramRoot": "miniprogram/",

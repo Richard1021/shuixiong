@@ -42,8 +42,9 @@
           bindtap="goToPlayer"
           data-course="{{item}}">
       <view class="course-cover">
-        <image src="{{item.coverImage || '/images/default-cover.png'}}"
+        <image wx:if="{{item.coverImage}}" src="{{item.coverImage}}"
                mode="aspectFill"></image>
+        <view wx:else class="cover-placeholder"></view>
         <view class="course-type-tag">{{item.type}}</view>
       </view>
       <view class="course-info">
