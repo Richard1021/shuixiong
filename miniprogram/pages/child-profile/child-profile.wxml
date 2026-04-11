@@ -1,0 +1,22 @@
+<view class="container child-page">
+  <view class="card form-card">
+    <view class="title">新增孩子</view>
+    <input class="input" placeholder="请输入孩子昵称" value="{{nickname}}" bindinput="handleNicknameInput" />
+    <picker mode="selector" range="{{['S1', 'S2', 'S3']}}" bindchange="handleStageChange">
+      <view class="picker">当前阶段：{{currentStage}}</view>
+    </picker>
+    <button class="primary-button" loading="{{saving}}" bindtap="handleSubmit">保存并设为当前孩子</button>
+  </view>
+
+  <view class="card list-card">
+    <view class="title">孩子列表</view>
+    <view wx:if="{{!profiles.length && !loading}}" class="empty">还没有孩子档案</view>
+    <view wx:for="{{profiles}}" wx:key="childId" class="child-item">
+      <view>
+        <view class="child-name">{{item.nickname}}</view>
+        <view class="child-meta">{{item.currentStage}}<text wx:if="{{item.isCurrent}}"> · 当前</text></view>
+      </view>
+      <button wx:if="{{!item.isCurrent}}" size="mini" class="secondary-button action-button" data-child="{{item}}" bindtap="handleSetCurrent">设为当前</button>
+    </view>
+  </view>
+</view>

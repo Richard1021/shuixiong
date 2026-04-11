@@ -1,0 +1,10 @@
+{
+  "name": "shuixiongv2",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
+}

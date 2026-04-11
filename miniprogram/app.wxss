@@ -1,30 +1,39 @@
 page {
-  background-color: #FFF6E5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  box-sizing: border-box;
-  height: 100%;
+  background: #f6f7fb;
+  color: #1f2937;
+  font-size: 32rpx;
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
-  padding: 20rpx;
-  box-sizing: border-box;
   min-height: 100vh;
+  box-sizing: border-box;
+  padding: 48rpx 32rpx 64rpx;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #FF9966, #FF6699);
-  color: white;
-  border: none;
-  border-radius: 30rpx;
-  padding: 20rpx 60rpx;
+.card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.06);
+}
+
+.primary-button {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  border-radius: 999rpx;
+  background: #2563eb;
+  color: #ffffff;
   font-size: 32rpx;
-  font-weight: bold;
-  box-shadow: 0 4rpx 12rpx rgba(255, 102, 153, 0.4);
+  font-weight: 600;
 }
 
-.btn-primary:active {
-  opacity: 0.9;
-  transform: scale(0.98);
+.secondary-button {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 999rpx;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 30rpx;
 }

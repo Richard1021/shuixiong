@@ -1,0 +1,45 @@
+.child-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.title {
+  margin-bottom: 24rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.input,
+.picker {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  border-radius: 20rpx;
+  background: #f8fafc;
+}
+
+.child-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-top: 1rpx solid #e5e7eb;
+}
+
+.child-name {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.child-meta,
+.empty {
+  margin-top: 8rpx;
+  color: #6b7280;
+  font-size: 26rpx;
+}
+
+.action-button {
+  width: 200rpx;
+}

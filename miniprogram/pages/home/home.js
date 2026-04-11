@@ -1,72 +1,67 @@
-const app = getApp();
+const { getCurrentChild, getChildProfiles, setCurrentChild, pickCurrentChildFromProfiles, initSession } = require('../../utils/api')
 
 Page({
   data: {
-    userInfo: null,
-    courseList: [],
-    currentTab: 'all',
+    currentChild: null,
     loading: false
   },
-
-  onLoad: function () {
-    this.loadUserInfo();
-    this.loadCourses();
+  onShow() {
+    this.syncCurrentChild()
   },
+  syncCurrentChild() {
+    const currentChild = getCurrentChild()
+    this.setData({ currentChild })
 
-  loadUserInfo() {
-    const userInfo = app.globalData.userInfo;
-    if (userInfo) {
-      this.setData({ userInfo });
+    if (currentChild && currentChild.childId) {
+      return
     }
-  },
 
-  async loadCourses() {
-    this.setData({ loading: true });
-
-    try {
-      const result = await wx.cloud.callFunction({
-        name: 'getCourseList',
-        data: {
-          stage: 'S1',
-          type: this.data.currentTab === 'all' ? null : this.data.currentTab
+    getChildProfiles()
+      .then((result) => {
+        const fallbackChild = pickCurrentChildFromProfiles(result.profiles || [])
+        if (fallbackChild) {
+          setCurrentChild(fallbackChild)
+          this.setData({ currentChild: fallbackChild })
         }
-      });
-
-      if (result.result.success) {
-        this.setData({ courseList: result.result.data });
-      } else {
-        wx.showToast({ title: result.result.message, icon: 'none' });
-      }
-    } catch (error) {
-      console.error('加载课程失败:', error);
-      wx.showToast({ title: '加载失败，请重试', icon: 'none' });
-    } finally {
-      this.setData({ loading: false });
+      })
+      .catch(() => {})
+  },
+  handleManageChild() {
+    wx.navigateTo({
+      url: '/pages/child-profile/child-profile'
+    })
+  },
+  handleStart() {
+    const currentChild = getCurrentChild()
+    if (!currentChild || !currentChild.childId) {
+      wx.navigateTo({
+        url: '/pages/child-profile/child-profile?source=start'
+      })
+      return
     }
-  },
 
-  // 切换分类 Tab
-  switchTab: function (e) {
-    const { type } = e.currentTarget.dataset;
-    this.setData({ currentTab: type });
-    this.loadCourses();
-  },
+    this.setData({ loading: true })
+    initSession({ childId: currentChild.childId })
+      .then((result) => {
+        const query = [
+          `sessionId=${encodeURIComponent(result.sessionId || '')}`,
+          `contentId=${encodeURIComponent(result.contentId || '')}`,
+          `displayTitle=${encodeURIComponent(result.displayTitle || '')}`,
+          `startAudioUrl=${encodeURIComponent(result.startAudioUrl || '')}`,
+          `startAudioDurationMs=${encodeURIComponent(result.startAudioDurationMs || 0)}`,
+          `coverImageUrl=${encodeURIComponent(result.coverImageUrl || '')}`,
+          `childName=${encodeURIComponent(currentChild.nickname || '')}`
+        ].join('&')
 
-  // 跳转到播放页
-  goToPlayer: function (e) {
-    const { course } = e.currentTarget.dataset;
-    wx.navigateTo({
-      url: `/pages/player/player?courseId=${course._id}`,
-      success: () => {
-        app.globalData.currentCourse = course;
-      }
-    });
-  },
-
-  // 跳转到个人中心
-  goToProfile: function () {
-    wx.navigateTo({
-      url: '/pages/profile/profile'
-    });
+        wx.navigateTo({
+          url: `/pages/practice/practice?${query}`
+        })
+      })
+      .catch(() => {
+        wx.showToast({ title: '启动失败，请稍后再试', icon: 'none' })
+      })
+      .finally(() => {
+        this.setData({ loading: false })
+      })
   }
-});
+})

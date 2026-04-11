@@ -1,64 +1,67 @@
-const recorderManager = wx.getRecorderManager();
+let recorderManager = null
+let stopHandler = null
+let errorHandler = null
 
-class RecorderManager {
-  constructor() {
-    this.isRecording = false;
-    this.tempFilePath = '';
-    this.onStopCallback = null;
-
-    recorderManager.onStart(() => {
-      console.log('录音开始');
-      this.isRecording = true;
-    });
-
-    recorderManager.onStop((res) => {
-      console.log('录音结束', res);
-      this.isRecording = false;
-      this.tempFilePath = res.tempFilePath;
-
-      if (this.onStopCallback) {
-        this.onStopCallback(res);
-      }
-    });
-
-    recorderManager.onError((err) => {
-      console.error('录音错误:', err);
-      this.isRecording = false;
-    });
+function getManager() {
+  if (!recorderManager && wx.getRecorderManager) {
+    recorderManager = wx.getRecorderManager()
   }
 
-  // 开始录音
-  start(options = {}) {
-    if (this.isRecording) {
-      return;
-    }
-
-    const defaultOptions = {
-      duration: 10000,  // 最长 10 秒
-      sampleRate: 44100,
-      numberOfChannels: 1,
-      encodeBitRate: 192000,
-      format: 'aac',
-    };
-
-    recorderManager.start({
-      ...defaultOptions,
-      ...options,
-    });
-
-    this.isRecording = true;
-  }
-
-  // 停止录音
-  stop(onStop) {
-    this.onStopCallback = onStop;
-    recorderManager.stop();
-  }
-
-  // 获取录音文件路径
-  getFilePath() {
-    return this.tempFilePath;
-  }
+  return recorderManager
 }
 
-export default new RecorderManager();
+function registerRecorderListeners({ onStop, onError }) {
+  const manager = getManager()
+
+  if (!manager) {
+    return null
+  }
+
+  stopHandler = onStop
+  errorHandler = onError
+
+  manager.onStop((result) => {
+    if (typeof stopHandler === 'function') {
+      stopHandler(result)
+    }
+  })
+  manager.onError((error) => {
+    if (typeof errorHandler === 'function') {
+      errorHandler(error)
+    }
+  })
+
+  return manager
+}
+
+function startRecord(options = {}) {
+  const manager = getManager()
+
+  if (!manager) {
+    throw new Error('recorder unavailable')
+  }
+
+  manager.start({
+    duration: options.duration || 10000,
+    sampleRate: 16000,
+    numberOfChannels: 1,
+    encodeBitRate: 96000,
+    format: 'mp3'
+  })
+}
+
+function stopRecord() {
+  const manager = getManager()
+
+  if (!manager) {
+    throw new Error('recorder unavailable')
+  }
+
+  manager.stop()
+}
+
+module.exports = {
+  registerRecorderListeners,
+  startRecord,
+  stopRecord
+}

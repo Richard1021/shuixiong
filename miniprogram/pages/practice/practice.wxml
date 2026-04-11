@@ -1,0 +1,48 @@
+<view class="container practice-page tone-{{skyTone}}">
+  <view class="sky-layer"></view>
+  <view class="sun-glow"></view>
+  <view class="cloud cloud-left"></view>
+  <view class="cloud cloud-right"></view>
+  <view class="sparkle sparkle-a">{{decorations[1]}}</view>
+  <view class="sparkle sparkle-b">{{decorations[1]}}</view>
+  <view class="rainbow">{{decorations[2]}}</view>
+
+  <view class="top-badge">当前：{{childName || '小朋友'}}</view>
+
+  <view class="storybook-card">
+    <view class="book-cover floating-book">
+      <view class="book-ring"></view>
+      <view class="cover-sticker">{{decorations[0]}}</view>
+      <view wx:if="{{hasCoverImage}}" class="cover-fallback">
+        <image class="cover-image" src="{{coverImageUrl}}" mode="aspectFill"></image>
+      </view>
+      <view wx:else class="cover-fallback">
+        <view class="book-emoji">{{bookEmoji}}</view>
+        <view class="book-title">{{heroTitle}}</view>
+        <view class="book-subtitle">{{heroSubtitle}}</view>
+      </view>
+    </view>
+
+    <view class="hint-bubble floating-bubble">
+      <view class="hint-icon">🐻</view>
+      <view class="hint-wrap">
+        <view class="hint-text">{{storyHint}}</view>
+        <view wx:if="{{playbackProgressText}}" class="progress-text">{{playbackProgressText}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="practice-panel">
+    <view class="practice-target">{{targetText || '水熊宝准备好啦'}}</view>
+    <view class="practice-hint">{{stateHint}}</view>
+
+    <button wx:if="{{phase === 'practice' && showRecordButton}}" class="practice-button" bindtap="handleStartRecord">开始跟读</button>
+    <button wx:if="{{phase === 'recording'}}" class="practice-button stop" bindtap="handleStopRecord">停止录音</button>
+    <view wx:if="{{phase === 'submitting'}}" class="practice-status">正在提交刚刚的声音…</view>
+    <view wx:if="{{phase === 'end'}}" class="practice-status success">今天练习完成啦</view>
+  </view>
+
+  <view class="footer-stars">✨ ✨ ✨</view>
+
+  <view wx:if="{{autoPlayError}}" class="error-note">故事音频准备中，请稍等一下</view>
+</view>

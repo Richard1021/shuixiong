@@ -1,51 +1,72 @@
-// 调用云函数封装
-function callCloudFunction(name, data = {}) {
-  return new Promise((resolve, reject) => {
-    wx.cloud.callFunction({
-      name,
-      data,
-      success: (res) => {
-        resolve(res.result);
-      },
-      fail: (err) => {
-        reject(err);
-      },
-    });
-  });
+const APP = getApp()
+const STORAGE_KEY = 'currentChild'
+
+function callFunction(name, data = {}) {
+  return wx.cloud.callFunction({
+    name,
+    data
+  }).then((response) => response.result || {})
 }
 
-// 获取课程列表
-export function getCourseList(stage = 'S1', type = null) {
-  return callCloudFunction('getCourseList', { stage, type });
+function pickCurrentChildFromProfiles(profiles = []) {
+  const currentProfile = profiles.find((item) => Number(item.isCurrent) === 1)
+  if (currentProfile) {
+    return currentProfile
+  }
+
+  return profiles[0] || null
 }
 
-// 获取课程详情
-export function getCourseDetail(courseId) {
-  return callCloudFunction('getCourseDetail', { courseId });
+function getCurrentChild() {
+  if (APP.globalData.currentChild) {
+    return APP.globalData.currentChild
+  }
+
+  const currentChild = wx.getStorageSync(STORAGE_KEY) || null
+  APP.globalData.currentChild = currentChild
+  return currentChild
 }
 
-// 提交录音
-export function submitRecording(data) {
-  return callCloudFunction('submitRecording', data);
+function setCurrentChild(child) {
+  APP.setCurrentChild(child)
+  return child
 }
 
-// 语音识别
-export function recognizeVoice(data) {
-  return callCloudFunction('recognizeVoice', data);
+function getChildProfiles() {
+  return callFunction('getChildProfiles')
 }
 
-// 上传文件到云存储
-export function uploadFile(filePath) {
-  return new Promise((resolve, reject) => {
-    wx.cloud.uploadFile({
-      filePath,
-      cloudPath: `recordings/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.aac`,
-      success: (res) => {
-        resolve(res.fileID);
-      },
-      fail: (err) => {
-        reject(err);
-      },
-    });
-  });
+function saveChildProfile(payload) {
+  return callFunction('saveChildProfile', payload).then((result) => {
+    if (result.currentChild) {
+      setCurrentChild(result.currentChild)
+    }
+    return result
+  })
+}
+
+function initSession(payload) {
+  return callFunction('initSession', payload).then((result) => {
+    APP.setLatestSession(result)
+    return result
+  })
+}
+
+function submitPracticeResult(payload) {
+  return callFunction('submitPracticeResult', payload)
+}
+
+function advanceSession(payload) {
+  return callFunction('advanceSession', payload)
+}
+
+module.exports = {
+  getCurrentChild,
+  setCurrentChild,
+  getChildProfiles,
+  saveChildProfile,
+  initSession,
+  submitPracticeResult,
+  advanceSession,
+  pickCurrentChildFromProfiles
 }
