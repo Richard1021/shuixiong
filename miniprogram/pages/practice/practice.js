@@ -1,16 +1,19 @@
 const {
   buildPracticeState,
+  buildPracticePhase,
   buildRecordingState,
   buildSubmittingState,
   buildNextTargetState,
   buildErrorRecoveryState,
-  buildPlaybackProgressText
+  buildPlaybackProgressText,
+  isCloudFileId
 } = require('./practice.logic')
 const { advanceSession, submitPracticeResult } = require('../../utils/api')
 const { registerRecorderListeners, startRecord, stopRecord } = require('../../utils/recorder')
 
 const APP = getApp()
 const PREVIEW_GAP_MS = 600
+const PROMPT_TIMEOUT_MS = 3000
 
 Page({
   data: {
@@ -185,12 +188,108 @@ Page({
         eventType: 'startPlaybackFinished'
       })
       console.log('[practice] loadFirstTarget success', result)
-      this.setData(buildNextTargetState(this.data, result))
+      const nextState = buildNextTargetState(this.data, result)
+      console.log('[practice] loadFirstTarget nextState', {
+        phase: nextState.phase,
+        targetId: nextState.targetId,
+        targetText: nextState.targetText,
+        promptAudioUrl: nextState.promptAudioUrl,
+        hasPromptAudio: Boolean(nextState.promptAudioUrl)
+      })
+      this.applyTargetState(nextState)
     } catch (error) {
       console.error('[practice] loadFirstTarget failed', error)
       this.setData(buildErrorRecoveryState(this.data, 'advance_failed'))
     } finally {
       this.loadingFirstTarget = false
+    }
+  },
+  applyTargetState(nextState) {
+    console.log('[practice] applyTargetState', {
+      phase: nextState.phase,
+      targetId: nextState.targetId,
+      targetText: nextState.targetText,
+      promptAudioUrl: nextState.promptAudioUrl,
+      hasPromptAudio: Boolean(nextState.promptAudioUrl)
+    })
+    this.setData(nextState)
+
+    if (nextState.phase === 'prompt-playing') {
+      this.playPromptAudio(nextState.promptAudioUrl)
+    }
+  },
+  async playPromptAudio(url) {
+    console.log('[practice] prompt playing', {
+      url,
+      isCloudFileId: isCloudFileId(url),
+      hasCloudApi: Boolean(wx.cloud && wx.cloud.getTempFileURL)
+    })
+
+    if (!url || !wx.createInnerAudioContext) {
+      console.log('[practice] prompt fallback to practice phase')
+      this.setData(buildPracticePhase('practice', this.data))
+      return
+    }
+
+    if (this.audioContext) {
+      try {
+        this.audioContext.pause()
+      } catch (error) {}
+    }
+
+    clearTimeout(this.promptTimer)
+    if (this.promptAudioContext) {
+      this.promptAudioContext.destroy()
+      this.promptAudioContext = null
+    }
+
+    try {
+      let playableUrl = url
+      if (isCloudFileId(url) && wx.cloud && wx.cloud.getTempFileURL) {
+        const tempResult = await wx.cloud.getTempFileURL({ fileList: [url] })
+        const file = tempResult.fileList && tempResult.fileList[0]
+        playableUrl = file && file.tempFileURL ? file.tempFileURL : url
+        console.log('[practice] prompt temp url resolved', {
+          originalUrl: url,
+          playableUrl,
+          hasTempFileURL: Boolean(file && file.tempFileURL)
+        })
+      }
+
+      const ctx = wx.createInnerAudioContext()
+      this.promptAudioContext = ctx
+      ctx.src = playableUrl
+      ctx.autoplay = false
+      console.log('[practice] prompt ctx ready', {
+        playableUrl,
+        phase: this.data.phase
+      })
+      ctx.onEnded(() => {
+        console.log('[practice] prompt ended')
+        clearTimeout(this.promptTimer)
+        this.setData(buildPracticePhase('practice', this.data))
+      })
+      ctx.onError((error) => {
+        console.warn('[practice] prompt error', error)
+        clearTimeout(this.promptTimer)
+        this.setData(buildPracticePhase('practice', this.data))
+      })
+      this.promptTimer = setTimeout(() => {
+        console.warn('[practice] prompt timeout fallback', {
+          playableUrl,
+          phase: this.data.phase
+        })
+        if (this.promptAudioContext) {
+          this.promptAudioContext.stop()
+        }
+        this.setData(buildPracticePhase('practice', this.data))
+      }, PROMPT_TIMEOUT_MS)
+      console.log('[practice] prompt play invoke', { playableUrl })
+      ctx.play()
+    } catch (error) {
+      console.warn('[practice] prompt setup failed', error)
+      clearTimeout(this.promptTimer)
+      this.setData(buildPracticePhase('practice', this.data))
     }
   },
   handleStartRecord() {
@@ -239,11 +338,16 @@ Page({
       })
       console.log('[practice] advanceSession after submit success', nextResult)
 
+      const nextState = buildNextTargetState({
+        ...this.data,
+        responseType: submitResult.responseType,
+        recognizedText: submitResult.recognizedText || ''
+      }, nextResult)
       this.setData({
         responseType: submitResult.responseType,
         recognizedText: submitResult.recognizedText || ''
       })
-      this.setData(buildNextTargetState(this.data, nextResult))
+      this.applyTargetState(nextState)
     } catch (error) {
       console.error('[practice] handleRecorderStop failed', error)
       this.setData(buildErrorRecoveryState(this.data, 'submit_failed'))
@@ -251,9 +355,14 @@ Page({
   },
   onUnload() {
     clearTimeout(this.previewTimer)
+    clearTimeout(this.promptTimer)
     if (this.audioContext) {
       this.audioContext.destroy()
       this.audioContext = null
+    }
+    if (this.promptAudioContext) {
+      this.promptAudioContext.destroy()
+      this.promptAudioContext = null
     }
   }
 })

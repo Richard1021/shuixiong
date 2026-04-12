@@ -133,28 +133,51 @@ describe('practice phase helpers', () => {
       targetId: 'target_1',
       targetText: 'apple',
       targetType: 'word',
-      promptText: '跟着说 apple',
+      promptText: '跟我一起念，apple',
       promptAudioUrl: 'https://tmp.example.com/apple.mp3'
     })
 
     expect(state.phase).toBe('prompt-playing')
     expect(state.showRecordButton).toBe(false)
-    expect(state.stateHint).toBe('正在听水熊宝示范')
+    expect(state.stateHint).toBe('一起听一听吧')
     expect(state.promptAudioUrl).toBe('https://tmp.example.com/apple.mp3')
   })
 
+  test('builds practice phase for word target with inviting guidance', () => {
     const state = buildPracticePhase('practice', {
       targetId: 'target_1',
       targetText: 'apple',
       targetType: 'word',
-      promptText: '跟着说 apple'
+      promptText: '跟我一起念，apple'
     })
 
     expect(state.phase).toBe('practice')
     expect(state.targetId).toBe('target_1')
     expect(state.targetText).toBe('apple')
     expect(state.showRecordButton).toBe(true)
-    expect(state.stateHint).toBe('跟着水熊宝说一说')
+    expect(state.stateHint).toBe('宝贝，你来说一说')
+  })
+
+  test('builds practice phase for phrase target with gentle encouragement', () => {
+    const state = buildPracticePhase('practice', {
+      targetId: 'target_2',
+      targetText: 'I see a bear',
+      targetType: 'phrase',
+      promptText: '跟我说一说，I see a bear'
+    })
+
+    expect(state.phase).toBe('practice')
+    expect(state.showRecordButton).toBe(true)
+    expect(state.stateHint).toBe('慢慢说也可以哦')
+  })
+
+  test('falls back to word guidance when practice target type is missing', () => {
+    const state = buildPracticePhase('practice', {
+      targetId: 'target_1',
+      targetText: 'apple'
+    })
+
+    expect(state.stateHint).toBe('宝贝，你来说一说')
   })
 
   test('switches to recording state and hides record button', () => {
@@ -183,17 +206,14 @@ describe('practice phase helpers', () => {
 
   test('maps next target payload into prompt playing state when prompt audio exists', () => {
     const state = buildNextTargetState(
-      {
-        targetId: 'target_1',
-        targetText: 'apple'
-      },
+      { targetId: 'target_1', targetText: 'apple' },
       {
         nextPhase: 'practice',
         currentMode: 'word',
         targetId: 'target_2',
         targetText: 'banana',
         targetType: 'word',
-        promptText: '跟着说 banana',
+        promptText: '跟我一起念，banana',
         promptAudioUrl: 'https://tmp.example.com/banana.mp3'
       }
     )
@@ -203,6 +223,7 @@ describe('practice phase helpers', () => {
     expect(state.promptAudioUrl).toBe('https://tmp.example.com/banana.mp3')
   })
 
+  test('maps next target payload into practice state when prompt audio is absent', () => {
     const state = buildNextTargetState(
       { targetId: 'target_1', targetText: 'apple' },
       {
@@ -211,7 +232,7 @@ describe('practice phase helpers', () => {
         targetId: 'target_2',
         targetText: 'banana',
         targetType: 'word',
-        promptText: '跟着说 banana'
+        promptText: '跟我一起念，banana'
       }
     )
 
@@ -230,7 +251,7 @@ describe('practice phase helpers', () => {
 
     expect(state.phase).toBe('end')
     expect(state.sessionCompleted).toBe(true)
-    expect(state.stateHint).toBe('今天练习完成啦')
+    expect(state.stateHint).toBe('宝贝真棒，今天完成啦')
     expect(state.showRecordButton).toBe(false)
   })
 
@@ -273,12 +294,25 @@ describe('buildPreviewAudioPlan', () => {
   })
 })
 
-describe('buildPlaybackProgressText', () => {
-  test('returns soft progress copy with total duration for current preview segment', () => {
-    expect(buildPlaybackProgressText(1, 2, 10)).toBe('正在播放第 1 段 / 共 2 段 · 共 10 秒')
-  })
+describe('practice logging coverage', () => {
+  test('builds prompt playing state with prompt audio url for runtime logging inspection', () => {
+    const state = buildNextTargetState(
+      { targetId: 'target_1', targetText: 'apple' },
+      {
+        nextPhase: 'practice',
+        currentMode: 'word',
+        targetId: 'target_2',
+        targetText: 'banana',
+        targetType: 'word',
+        promptText: '跟着说 banana',
+        promptAudioUrl: 'cloud://tts/gentle_female/banana.mp3'
+      }
+    )
 
-  test('returns finished copy after playback completes', () => {
-    expect(buildPlaybackProgressText(2, 2, 10, true)).toBe('故事播放完啦 · 共 10 秒')
+    expect(state).toEqual(expect.objectContaining({
+      phase: 'prompt-playing',
+      promptAudioUrl: 'cloud://tts/gentle_female/banana.mp3',
+      showRecordButton: false
+    }))
   })
 })

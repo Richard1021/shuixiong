@@ -1,13 +1,25 @@
 const { pickNextTarget, advanceTargetPool } = require('./session-state')
 
+function buildPromptText(targetType, text) {
+  const normalizedText = String(text || '').trim()
+
+  if (targetType === 'phrase') {
+    return `跟我说一说，${normalizedText}`
+  }
+
+  return `跟我一起念，${normalizedText}`
+}
+
 function buildAdvanceSessionResult(target = {}) {
+  const targetText = target.text || target.targetText || ''
+
   return {
     nextPhase: 'practice',
     currentMode: target.targetType || 'word',
     targetId: target.targetId,
-    targetText: target.text || target.targetText || '',
+    targetText,
     targetType: target.targetType || 'word',
-    promptText: target.ttsText || `跟着说 ${target.text || target.targetText || ''}`,
+    promptText: target.ttsText || buildPromptText(target.targetType, targetText),
     promptAudioUrl: target.promptAudioUrl || '',
     sessionCompleted: false
   }
@@ -41,5 +53,6 @@ function pickSessionTarget(targetList = [], cache = {}) {
 module.exports = {
   buildAdvanceSessionResult,
   buildAdvanceSessionEndResult,
-  pickSessionTarget
+  pickSessionTarget,
+  buildPromptText
 }

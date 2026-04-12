@@ -1,6 +1,11 @@
 const cloud = require('wx-server-sdk')
 const { resetTargetPool } = require('./session-state')
 const { resolvePromptAudio } = require('./tts-adapter')
+const {
+  buildAdvanceSessionResult,
+  buildAdvanceSessionEndResult,
+  pickSessionTarget
+} = require('./advance-session.logic')
 
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
@@ -17,7 +22,7 @@ function buildFallbackTarget() {
     targetId: 'target_demo_s1',
     targetText: 'apple',
     targetType: 'word',
-    promptText: '跟着说 apple',
+    promptText: '跟我一起念，apple',
     promptAudioUrl: '',
     sessionCompleted: false
   }
@@ -65,9 +70,33 @@ exports.main = async (event = {}) => {
     return buildAdvanceSessionEndResult()
   }
 
+  const result = buildAdvanceSessionResult({
+    ...selection.target,
+    promptAudioUrl: ''
+  })
+
+  const promptText = result.promptText
+  console.log('[advanceSession] selected target', {
+    sessionId,
+    targetId: selection.target.targetId,
+    targetText: selection.target.text || selection.target.targetText || '',
+    promptText,
+    cacheRemaining: selection.cache && selection.cache.remainingIds
+      ? selection.cache.remainingIds.length
+      : 0
+  })
+
   const promptAudio = await resolvePromptAudio({
-    text: selection.target.text || selection.target.targetText || '',
+    text: result.promptText,
     voiceType: 'gentle_female'
+  })
+
+  console.log('[advanceSession] prompt audio resolved', {
+    sessionId,
+    targetId: selection.target.targetId,
+    promptAudioUrl: promptAudio.promptAudioUrl,
+    hasPromptAudio: Boolean(promptAudio.promptAudioUrl),
+    cacheKey: promptAudio.cacheKey
   })
 
   await db.collection(SESSION_COLLECTION).doc(session._id).update({
@@ -79,6 +108,7 @@ exports.main = async (event = {}) => {
 
   return buildAdvanceSessionResult({
     ...selection.target,
-    promptAudioUrl: promptAudio.promptAudioUrl
+    promptAudioUrl: promptAudio.promptAudioUrl,
+    ttsText: result.promptText
   })
 }

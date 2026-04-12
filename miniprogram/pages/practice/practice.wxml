@@ -36,6 +36,7 @@
     <view class="practice-target">{{targetText || '水熊宝准备好啦'}}</view>
     <view class="practice-hint">{{stateHint}}</view>
 
+    <view wx:if="{{phase === 'prompt-playing'}}" class="practice-status">正在听水熊宝示范…</view>
     <button wx:if="{{phase === 'practice' && showRecordButton}}" class="practice-button" bindtap="handleStartRecord">开始跟读</button>
     <button wx:if="{{phase === 'recording'}}" class="practice-button stop" bindtap="handleStopRecord">停止录音</button>
     <view wx:if="{{phase === 'submitting'}}" class="practice-status">正在提交刚刚的声音…</view>

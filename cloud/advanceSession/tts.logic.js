@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 function sanitizeText(value) {
   return String(value || '')
     .trim()
@@ -6,12 +8,17 @@ function sanitizeText(value) {
     .replace(/[^a-z0-9-]/g, '')
 }
 
+function buildPromptFingerprint(text) {
+  return crypto.createHash('md5').update(String(text || '').trim()).digest('hex').slice(0, 8)
+}
+
 function buildTtsCacheKey({ voiceType, text }) {
   return `${voiceType}::${String(text || '').trim()}`
 }
 
 function buildTtsFilePath({ voiceType, text }) {
-  return `tts/${voiceType}/${sanitizeText(text)}.mp3`
+  const normalizedText = String(text || '').trim()
+  return `tts/${voiceType}/${sanitizeText(normalizedText)}-${buildPromptFingerprint(normalizedText)}.mp3`
 }
 
 function buildPromptAudioPayload({ targetText, promptText, promptAudioUrl }) {

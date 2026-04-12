@@ -133,6 +133,14 @@ function buildPracticeState(options = {}, context = {}) {
   }
 }
 
+function buildPracticeStateHint(targetType) {
+  if (targetType === 'phrase') {
+    return '慢慢说也可以哦'
+  }
+
+  return '宝贝，你来说一说'
+}
+
 function buildPracticePhase(phase, target = {}) {
   return {
     phase,
@@ -143,7 +151,21 @@ function buildPracticePhase(phase, target = {}) {
     promptText: target.promptText || '',
     promptAudioUrl: target.promptAudioUrl || '',
     showRecordButton: phase === 'practice',
-    stateHint: phase === 'practice' ? '跟着水熊宝说一说' : '准备一下'
+    stateHint: phase === 'practice' ? buildPracticeStateHint(target.targetType) : '准备一下'
+  }
+}
+
+function buildPromptPlayingPhase(target = {}) {
+  return {
+    phase: 'prompt-playing',
+    currentMode: target.currentMode || target.targetType || 'word',
+    targetId: target.targetId || '',
+    targetText: target.targetText || '',
+    targetType: target.targetType || '',
+    promptText: target.promptText || '',
+    promptAudioUrl: target.promptAudioUrl || '',
+    showRecordButton: false,
+    stateHint: '一起听一听吧'
   }
 }
 
@@ -184,7 +206,17 @@ function buildNextTargetState(current = {}, advanceResult = {}) {
       phase: 'end',
       sessionCompleted: Boolean(advanceResult.sessionCompleted),
       showRecordButton: false,
-      stateHint: '今天练习完成啦'
+      stateHint: '宝贝真棒，今天完成啦'
+    }
+  }
+
+  if (advanceResult.promptAudioUrl) {
+    return {
+      ...current,
+      ...buildPromptPlayingPhase(advanceResult),
+      currentMode: advanceResult.currentMode || current.currentMode || 'word',
+      sessionCompleted: false,
+      practiceCount: Number(current.practiceCount || 0) + 1
     }
   }
 
@@ -211,6 +243,7 @@ module.exports = {
   buildPracticeState,
   isCloudFileId,
   buildPracticePhase,
+  buildPromptPlayingPhase,
   buildRecordingState,
   buildSubmittingState,
   buildNextTargetState,
